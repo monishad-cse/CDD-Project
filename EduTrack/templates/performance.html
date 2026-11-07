@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% block content %}
+{% if role == 'student' %}
+<h2>My Subject Marks</h2>
+<p class="text-muted">These are the marks recorded by your faculty.</p>
+<div class="table-responsive"><table class="table table-striped"><thead><tr><th>Subject</th><th>Marks</th><th>Percentage</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.subject }}</td><td>{{ r.marks }}/{{ r.max_marks }}</td><td>{{ (r.marks * 100 / r.max_marks)|round(1) }}%</td></tr>{% else %}<tr><td colspan="3">No marks recorded yet.</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}
+<h2>Student Performance / Marks</h2>
+<form method="post" class="card card-body mb-4">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<div class="row g-2">
+<div class="col-md-3"><select class="form-select" name="student_id" required><option value="">Select student</option>{% for s in students %}<option value="{{ s.id }}">{{ s.roll_no }} - {{ s.name }}{% if s.faculty_username %} ({{ s.faculty_username }}){% endif %}</option>{% endfor %}</select></div>
+<div class="col-md-3"><input class="form-control" name="subject" placeholder="Subject" required></div>
+<div class="col-md-2"><input class="form-control" type="number" min="0" step="0.5" name="marks" placeholder="Marks" required></div>
+<div class="col-md-2"><input class="form-control" type="number" min="1" step="0.5" name="max_marks" placeholder="Max marks" value="100" required></div>
+<div class="col-md-2"><button class="btn btn-primary w-100">Save marks</button></div>
+</div></form>
+<table class="table table-striped"><thead><tr>{% if role == 'admin' %}<th>Faculty</th>{% endif %}<th>Roll No.</th><th>Student</th><th>Subject</th><th>Marks</th><th>Percentage</th></tr></thead><tbody>
+{% for r in rows %}<tr>{% if role == 'admin' %}<td>{{ r.faculty_username or 'Unassigned' }}</td>{% endif %}<td>{{ r.roll_no }}</td><td>{{ r.name }}</td><td>{{ r.subject }}</td><td>{{ r.marks }}/{{ r.max_marks }}</td><td>{{ (r.marks * 100 / r.max_marks)|round(1) }}%</td></tr>{% else %}<tr><td colspan="{{ 6 if role == 'admin' else 5 }}">No marks entered.</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+{% endblock %}

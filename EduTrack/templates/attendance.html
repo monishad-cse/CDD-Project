@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block content %}
+<h2>Mark Attendance</h2>
+<p class="text-muted">Attendance is recorded independently for each subject. Students receive a dashboard alert below {{ attendance_threshold }}%.</p>
+<form method="post" class="card card-body mb-4">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<div class="row g-2">
+<div class="col-md-4"><select class="form-select" name="student_id" required><option value="">Select student</option>{% for s in students %}<option value="{{ s.id }}">{{ s.roll_no }} - {{ s.name }}{% if s.faculty_username %} ({{ s.faculty_username }}){% endif %}</option>{% endfor %}</select></div>
+<div class="col-md-3"><select class="form-select" name="subject_id" required><option value="">Select subject</option>{% for subject in subjects %}<option value="{{ subject.id }}">{{ subject.name }}{% if subject.faculty_username %} ({{ subject.faculty_username }}){% endif %}</option>{% endfor %}</select></div>
+<div class="col-md-2"><input class="form-control" type="date" name="date" required></div>
+<div class="col-md-2"><select class="form-select" name="status"><option>Present</option><option>Absent</option></select></div>
+<div class="col-md-1"><button class="btn btn-primary w-100">Save</button></div>
+</div></form>
+<h4>Recent attendance</h4><div class="table-responsive"><table class="table table-striped"><thead><tr>{% if role == 'admin' %}<th>Faculty</th>{% endif %}<th>Date</th><th>Subject</th><th>Roll No.</th><th>Student</th><th>Status</th></tr></thead><tbody>
+{% for r in rows %}<tr>{% if role == 'admin' %}<td>{{ r.faculty_username or 'Unassigned' }}</td>{% endif %}<td>{{ r.date }}</td><td>{{ r.subject }}</td><td>{{ r.roll_no }}</td><td>{{ r.name }}</td><td>{{ r.status }}</td></tr>{% else %}<tr><td colspan="{{ 6 if role == 'admin' else 5 }}">No records yet.</td></tr>{% endfor %}
+</tbody></table>{% endblock %}

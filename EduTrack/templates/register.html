@@ -1,0 +1,70 @@
+{% extends "base.html" %}{% block content %}
+<div class="row justify-content-center">
+ <div class="col-md-6 col-lg-5">
+  <div class="card card-body">
+   <h2 class="mb-3">Create student account</h2>
+   <p class="text-muted">Register using your faculty account and student details. Faculty and Admin accounts are created by an Admin.</p>
+   <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-3">
+     <label class="form-label" for="faculty_id">Faculty</label>
+     <select class="form-select" id="faculty_id" name="faculty_id" required>
+      <option value="" selected disabled>Select your faculty</option>
+      {% for faculty in faculties %}
+      <option value="{{ faculty.id }}" {% if request.form.get('faculty_id') == faculty.id|string %}selected{% endif %}>{{ faculty.username }}</option>
+      {% endfor %}
+     </select>
+     {% if not faculties %}<div class="form-text">No faculty accounts are available yet. Contact your administrator.</div>{% endif %}
+    </div>
+    <div class="mb-3">
+     <label class="form-label" for="name">Full name</label>
+     <input class="form-control" id="name" name="name" maxlength="255"
+            value="{{ request.form.get('name', '') }}" autocomplete="name" required>
+    </div>
+    <div class="row">
+     <div class="mb-3 col-sm-6">
+      <label class="form-label" for="roll_no">Roll number</label>
+      <input class="form-control" id="roll_no" name="roll_no" maxlength="64"
+             value="{{ request.form.get('roll_no', '') }}" required>
+     </div>
+     <div class="mb-3 col-sm-6">
+      <label class="form-label" for="department">Department</label>
+      <input class="form-control" id="department" name="department" maxlength="64"
+             value="{{ request.form.get('department', '') }}" required>
+     </div>
+    </div>
+    <div class="mb-3">
+     <label class="form-label" for="semester">Semester</label>
+     <select class="form-select" id="semester" name="semester" required>
+      <option value="" selected disabled>Select semester</option>
+      {% for semester in range(1, 9) %}
+      <option value="{{ semester }}" {% if request.form.get('semester') == semester|string %}selected{% endif %}>{{ semester }}</option>
+      {% endfor %}
+     </select>
+    </div>
+    <div class="mb-3">
+     <label class="form-label" for="username">Username</label>
+     <input class="form-control" id="username" name="username" minlength="3" maxlength="32"
+            pattern="[A-Za-z0-9_]+" value="{{ request.form.get('username', '') }}"
+            autocomplete="username" required>
+     <div class="form-text">Use 3–32 letters, numbers, or underscores.</div>
+    </div>
+    <div class="mb-3">
+     <label class="form-label" for="password">Password</label>
+     <input class="form-control" id="password" name="password" type="password" minlength="8"
+            maxlength="128"
+            autocomplete="new-password" required>
+     <div class="form-text">Use 8–128 characters.</div>
+    </div>
+    <div class="mb-3">
+     <label class="form-label" for="confirm_password">Confirm password</label>
+     <input class="form-control" id="confirm_password" name="confirm_password" type="password"
+            minlength="8" maxlength="128" autocomplete="new-password" required>
+    </div>
+    <button class="btn btn-primary w-100" type="submit" {% if not faculties %}disabled{% endif %}>Register</button>
+   </form>
+   <p class="text-center mt-4 mb-0">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+  </div>
+ </div>
+</div>
+{% endblock %}

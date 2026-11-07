@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Sign in | EduTrack{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center py-4 py-md-5">
+ <div class="col-sm-10 col-md-7 col-lg-5">
+  <div class="card p-4 p-md-5">
+   <div class="text-center mb-4">
+    <span class="brand-mark mb-3" style="width:48px;height:48px;font-size:24px">E</span>
+    <h1 class="h3 fw-bold mb-1">Welcome back</h1>
+    <p class="text-secondary mb-0">Sign in to your EduTrack workspace.</p>
+   </div>
+   <form method="post">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-3">
+     <label class="form-label fw-semibold" for="role">Sign in as</label>
+     <select class="form-select" id="role" name="role" required>
+      <option value="" selected disabled>Choose your account type</option>
+      <option value="admin">Admin</option>
+      <option value="faculty">Faculty</option>
+      <option value="student">Student</option>
+     </select>
+    </div>
+    <div class="mb-3">
+     <label class="form-label fw-semibold" for="username">Username</label>
+     <input class="form-control" id="username" name="username" autocomplete="username" placeholder="Enter your username" required>
+    </div>
+    <div class="mb-4">
+     <label class="form-label fw-semibold" for="password">Password</label>
+     <input class="form-control" id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+    </div>
+    <button class="btn btn-primary w-100" type="submit">Sign in</button>
+   </form>
+   <p class="text-center text-secondary small mt-4 mb-0">New student? <a href="{{ url_for('register') }}">Create an account</a></p>
+  </div>
+ </div>
+</div>
+{% endblock %}

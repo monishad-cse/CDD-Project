@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block content %}
+<h2>Student Report</h2>
+<p class="text-muted">Attendance is reported for each subject. Warnings are triggered below {{ attendance_threshold }}%.</p>
+<div class="table-responsive"><table class="table table-bordered table-striped"><thead><tr>{% if role == 'admin' %}<th>Faculty</th>{% endif %}<th>Roll No.</th><th>Student</th><th>Subject</th><th>Attendance</th><th>Average marks</th><th>Status</th></tr></thead><tbody>
+{% for r in subject_summary %}<tr>{% if role == 'admin' %}<td>{{ r.faculty_username or 'Unassigned' }}</td>{% endif %}<td>{{ r.roll_no }}</td><td>{{ r.name }}</td><td>{{ r.subject }}</td><td>{{ r.percentage }}% ({{ r.present_classes }}/{{ r.total_classes }})</td><td>
+{% for student in rows %}{% if student.roll_no == r.roll_no and student.faculty_username == r.faculty_username %}{% if student.average is not none %}{{ student.average }}%{% else %}Not entered{% endif %}{% endif %}{% endfor %}
+</td><td>{% if r.low %}<span class="badge text-bg-danger">Warning</span>{% elif r.total_classes == 0 %}<span class="badge text-bg-secondary">No classes recorded</span>{% else %}<span class="badge text-bg-success">Good</span>{% endif %}</td></tr>
+{% else %}<tr><td colspan="{{ 7 if role == 'admin' else 6 }}">No data.</td></tr>{% endfor %}
+</tbody></table></div>{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}EduTrack | Smart Campus Portal{% endblock %}
+{% block main_class %}landing-page{% endblock %}
+{% block content %}
+<section class="hero-section">
+ <div class="container hero-inner">
+  <div class="hero-copy">
+   <span class="eyebrow">ACADEMIC MANAGEMENT PORTAL</span>
+   <h1>Make every class<br><span>count.</span></h1>
+   <p class="hero-lead">A simple, connected space for managing student attendance, academic marks and classroom performance.</p>
+   <div class="hero-actions">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('login') }}">Get started <span aria-hidden="true">→</span></a>
+    <a class="text-link" href="#features">Explore features</a>
+   </div>
+   <div class="hero-points"><span>✓ Role-based access</span><span>✓ Centralised records</span><span>✓ Clear reports</span></div>
+  </div>
+  <div class="hero-visual" aria-label="Illustration of an academic dashboard">
+   <div class="visual-top"><span class="window-dots"><i></i><i></i><i></i></span><span>EDUTRACK / OVERVIEW</span></div>
+   <div class="visual-body">
+    <div class="visual-greeting">Academic overview <span>● Live workspace</span></div>
+    <div class="visual-stats"><div><small>ATTENDANCE</small><strong>92%</strong><em class="positive">On track</em></div><div><small>STUDENTS</small><strong>248</strong><em>Registered</em></div></div>
+    <div class="chart-title">Weekly attendance</div>
+    <div class="bar-chart"><b style="height:42%"></b><b style="height:68%"></b><b style="height:55%"></b><b style="height:82%"></b><b style="height:63%"></b><b style="height:94%"></b><b style="height:75%"></b></div>
+    <div class="visual-footer"><span><i class="role-dot admin-dot"></i> Admin</span><span><i class="role-dot faculty-dot"></i> Faculty</span><span><i class="role-dot student-dot"></i> Student</span></div>
+   </div>
+  </div>
+ </div>
+</section>
+<section class="feature-section" id="features">
+ <div class="container">
+  <div class="section-heading"><span class="eyebrow">ONE PORTAL, THREE ROLES</span><h2>Everything in one place.</h2><p>Designed to keep everyday academic work organised and easy to follow.</p></div>
+  <div class="row g-4">
+   <div class="col-md-4"><article class="feature-card"><div class="feature-icon icon-blue">01</div><h3>Attendance tracking</h3><p>Record daily attendance by subject and review attendance percentages.</p></article></div>
+   <div class="col-md-4"><article class="feature-card"><div class="feature-icon icon-sand">02</div><h3>Academic performance</h3><p>Enter assessment marks and keep student performance records together.</p></article></div>
+   <div class="col-md-4"><article class="feature-card"><div class="feature-icon icon-green">03</div><h3>Role-based workspace</h3><p>Give Admin, Faculty and Students access to the tools relevant to them.</p></article></div>
+  </div>
+ </div>
+</section>
+<section class="bottom-cta"><div class="container bottom-cta-inner"><div><span class="eyebrow">READY WHEN YOU ARE</span><h2>Step into your workspace.</h2></div><a class="btn btn-light btn-lg" href="{{ url_for('login') }}">Sign in to EduTrack →</a></div></section>
+<footer class="site-footer"><div class="container">EduTrack · Smart Attendance &amp; Student Performance Management System</div></footer>
+{% endblock %}

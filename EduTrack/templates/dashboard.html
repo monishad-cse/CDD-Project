@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% block content %}
+{% if role == 'student' %}
+<h2 class="mb-1">Welcome, {{ student.name }}</h2>
+<p class="text-muted mb-4">Student ID: {{ student.roll_no }} · Attendance alerts are raised below {{ attendance_threshold }}%.</p>
+{% if low_attendance %}
+<div class="alert alert-danger" role="alert">
+ <h4 class="alert-heading">Low attendance warning</h4>
+ <p>Your attendance is below {{ attendance_threshold }}% in these subjects:</p>
+ <ul class="mb-0">{% for row in low_attendance %}
+  <li><strong>{{ row.subject }}</strong>: {{ row.percentage }}% ({{ row.present_classes }}/{{ row.total_classes }} classes attended)</li>
+ {% endfor %}</ul>
+</div>
+{% else %}
+<div class="alert alert-success" role="status">No low-attendance warnings. Keep it up!</div>
+{% endif %}
+<h4>Attendance by subject</h4>
+<div class="table-responsive"><table class="table table-striped">
+<thead><tr><th>Subject</th><th>Attended</th><th>Total classes</th><th>Attendance</th><th>Status</th></tr></thead><tbody>
+{% for row in summary %}<tr><td>{{ row.subject }}</td><td>{{ row.present_classes }}</td><td>{{ row.total_classes }}</td><td>{{ row.percentage }}%</td>
+<td>{% if row.low %}<span class="badge text-bg-danger">Warning</span>{% elif row.total_classes == 0 %}<span class="badge text-bg-secondary">No classes recorded</span>{% else %}<span class="badge text-bg-success">Good</span>{% endif %}</td></tr>
+{% else %}<tr><td colspan="5">No subjects are assigned yet.</td></tr>{% endfor %}
+</tbody></table></div>
+<p><a class="btn btn-outline-primary" href="{{ url_for('performance') }}">View my marks</a></p>
+{% else %}
+<h2 class="mb-4">{% if role == 'admin' %}Admin dashboard{% else %}Dashboard{% endif %}</h2>
+<div class="row g-3 mb-4">
+ <div class="col-md-4"><div class="card stat"><div class="card-body"><h6>Students</h6><h2>{{ students }}</h2></div></div></div>
+ <div class="col-md-4"><div class="card stat"><div class="card-body"><h6>Attendance records</h6><h2>{{ attendance_count }}</h2></div></div></div>
+ <div class="col-md-4"><div class="card stat"><div class="card-body"><h6>Marks records</h6><h2>{{ marks_count }}</h2></div></div></div>
+</div>
+{% if role == 'admin' %}<div class="alert alert-primary">System-wide view across {{ faculty_count }} faculty account(s).</div>{% endif %}
+<h4>Low attendance alerts</h4>
+{% if low_attendance %}
+<div class="alert alert-warning" role="alert">
+ <strong>{{ low_attendance|length }} subject warning(s)</strong> are below {{ attendance_threshold }}%.
+ <ul class="mb-0 mt-2">{% for row in low_attendance %}
+  <li>{{ row.name }} ({{ row.roll_no }}) — {{ row.subject }}: {{ row.percentage }}% ({{ row.present_classes }}/{{ row.total_classes }})</li>
+ {% endfor %}</ul>
+</div>
+{% else %}<div class="alert alert-success" role="status">No students are currently below {{ attendance_threshold }}% in recorded subjects.</div>{% endif %}
+<h4>Attendance by student and subject</h4>
+<div class="table-responsive"><table class="table table-striped">
+<thead><tr><th>Roll No.</th><th>Student</th><th>Subject</th><th>Attended</th><th>Total</th><th>Attendance</th><th>Status</th></tr></thead><tbody>
+{% for row in summary %}<tr><td>{{ row.roll_no }}</td><td>{{ row.name }}</td><td>{{ row.subject }}</td><td>{{ row.present_classes }}</td><td>{{ row.total_classes }}</td><td>{{ row.percentage }}%</td>
+<td>{% if row.low %}<span class="badge text-bg-danger">Warning</span>{% elif row.total_classes == 0 %}<span class="badge text-bg-secondary">No classes recorded</span>{% else %}<span class="badge text-bg-success">Good</span>{% endif %}</td></tr>
+{% else %}<tr><td colspan="7">No students found.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+{% endblock %}

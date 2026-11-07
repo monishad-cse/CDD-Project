@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% block content %}
+<h2>Manage Students</h2>
+<p class="text-muted">Create each student and their login together. Share the username and password with the student securely.</p>
+<form method="post" class="card card-body mb-4">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<div class="row g-2">
+{% if role == 'admin' %}<div class="col-md-3"><select class="form-select" name="faculty_id" required><option value="">Assign to faculty</option>{% for faculty in faculties %}<option value="{{ faculty.id }}">{{ faculty.username }}</option>{% endfor %}</select></div>{% endif %}
+<div class="col-md-3"><input class="form-control" name="name" placeholder="Student name" required></div>
+<div class="col-md-2"><input class="form-control" name="roll_no" placeholder="Roll number" required></div>
+<div class="col-md-2"><input class="form-control" name="department" placeholder="Department" value="CSE" required></div>
+<div class="col-md-2"><input class="form-control" type="number" min="1" max="8" name="semester" placeholder="Semester" value="3" required></div>
+<div class="col-md-3"><input class="form-control" name="username" placeholder="Student login" pattern="[A-Za-z0-9_]{3,32}" required></div>
+<div class="col-md-3"><input class="form-control" type="password" name="student_password" placeholder="Initial password (8+ characters)" minlength="8" maxlength="128" required></div>
+<div class="col-md-3"><button class="btn btn-primary w-100">Add student and login</button></div>
+</div></form>
+<div class="table-responsive"><table class="table table-striped"><thead><tr>{% if role == 'admin' %}<th>Faculty</th>{% endif %}<th>Roll No.</th><th>Name</th><th>Department</th><th>Semester</th><th>Student login</th></tr></thead><tbody>
+{% for s in students %}<tr>{% if role == 'admin' %}<td>{{ s.faculty_username or 'Unassigned' }}</td>{% endif %}<td>{{ s.roll_no }}</td><td>{{ s.name }}</td><td>{{ s.department }}</td><td>{{ s.semester }}</td><td>
+{% if s.student_username %}{{ s.student_username }}{% else %}
+<form method="post" action="{{ url_for('create_existing_student_account', student_id=s.id) }}" class="d-flex gap-2">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<input class="form-control form-control-sm" name="username" placeholder="Username" pattern="[A-Za-z0-9_]{3,32}" required>
+<input class="form-control form-control-sm" type="password" name="student_password" placeholder="Initial password" minlength="8" maxlength="128" required>
+<button class="btn btn-sm btn-outline-primary text-nowrap">Create login</button>
+</form>
+{% endif %}</td></tr>{% else %}<tr><td colspan="{{ 6 if role == 'admin' else 5 }}">No students added.</td></tr>{% endfor %}
+</tbody></table>{% endblock %}

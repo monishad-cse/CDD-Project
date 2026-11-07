@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block content %}
+<h2>Manage Faculty</h2>
+<p class="text-muted">Create faculty accounts. Faculty can then manage their assigned students, attendance, and marks.</p>
+<form method="post" class="card card-body mb-4">
+ <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+ <div class="row g-2">
+  <div class="col-md-4"><input class="form-control" name="username" placeholder="Faculty username" pattern="[A-Za-z0-9_]{3,32}" required></div>
+  <div class="col-md-3"><input class="form-control" type="password" name="password" placeholder="Password (8+ characters)" minlength="8" maxlength="128" required></div>
+  <div class="col-md-3"><input class="form-control" type="password" name="confirm_password" placeholder="Confirm password" minlength="8" maxlength="128" required></div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Create faculty</button></div>
+ </div>
+</form>
+<div class="table-responsive"><table class="table table-striped">
+ <thead><tr><th>Username</th><th>Students</th></tr></thead><tbody>
+ {% for faculty in faculties %}<tr><td>{{ faculty.username }}</td><td>{{ faculty.student_count }}</td></tr>
+ {% else %}<tr><td colspan="2">No faculty accounts found.</td></tr>{% endfor %}
+ </tbody>
+</table></div>
+{% endblock %}

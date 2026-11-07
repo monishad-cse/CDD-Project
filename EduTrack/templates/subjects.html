@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block content %}
+<h2>Manage Subjects</h2>
+<p class="text-muted">Assign subjects to a faculty account. Admins can record attendance for these subjects.</p>
+<form method="post" class="card card-body mb-4">
+ <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+ <div class="row g-2">
+  <div class="col-md-5"><select class="form-select" name="faculty_id" required>
+   <option value="">Select faculty</option>
+   {% for faculty in faculties %}<option value="{{ faculty.id }}">{{ faculty.username }}</option>{% endfor %}
+  </select></div>
+  <div class="col-md-5"><input class="form-control" name="name" placeholder="Subject name" maxlength="100" required></div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Add subject</button></div>
+ </div>
+</form>
+<div class="table-responsive"><table class="table table-striped">
+ <thead><tr><th>Faculty</th><th>Subject</th></tr></thead><tbody>
+ {% for subject in subjects %}<tr><td>{{ subject.faculty_username or 'Unassigned' }}</td><td>{{ subject.name }}</td></tr>
+ {% else %}<tr><td colspan="2">No subjects found.</td></tr>{% endfor %}
+ </tbody>
+</table></div>
+{% endblock %}
