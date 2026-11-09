@@ -1,0 +1,77 @@
+name: EduTrack CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  frontend:
+    name: Build React frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
+  backend:
+    name: Check FastAPI backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r backend/requirements.txt
+      - run: python -m py_compile app.py backend/main.py
+      - run: python -m unittest discover -s tests
+      - run: python -c "from backend.main import api; print(api.title)"
+  docker:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: false
+          tags: edutrack-backend:ci
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: false
+          tags: edutrack-frontend:ci
+  deploy:
+    name: Trigger Render deployment (when configured)
+    runs-on: ubuntu-latest
+    needs: [frontend, backend, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger backend deployment
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$DEPLOY_HOOK" ]; then
+            curl --fail --silent --show-error "$DEPLOY_HOOK"
+          else
+            echo "RENDER_BACKEND_DEPLOY_HOOK is not configured; backend deployment skipped."
+          fi
+      - name: Trigger frontend deployment
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$DEPLOY_HOOK" ]; then
+            curl --fail --silent --show-error "$DEPLOY_HOOK"
+          else
+            echo "RENDER_FRONTEND_DEPLOY_HOOK is not configured; frontend deployment skipped."
+          fi

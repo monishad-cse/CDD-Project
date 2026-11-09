@@ -21,7 +21,7 @@ app.config.update(
 )
 DB_TYPE = "mysql"  # EduTrack uses MySQL exclusively.
 DB_INTEGRITY_ERRORS = (IntegrityError,)
-ATTENDANCE_THRESHOLD = 75
+ATTENDANCE_THRESHOLD = int(os.getenv("ATTENDANCE_THRESHOLD", "75"))
 DEMO_SUBJECTS = (
     "Data Structures",
     "Database Systems",

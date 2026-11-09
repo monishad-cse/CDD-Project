@@ -1,0 +1,16 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Database backups and sensitive files
+*.tar.gz
+*.sql
+*.sql.gz
+.env.*
+!.env.example

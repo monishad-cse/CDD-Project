@@ -1,70 +1,83 @@
-# EduTrack — Smart Attendance and Student Performance
+# EduTrack – Smart Attendance and Student Performance Management System
 
-A beginner-friendly CDD demonstration project built with Python Flask, MySQL, HTML, Bootstrap, Docker, GitHub, and GitHub Actions. SQLite is not used.
+A React + FastAPI + MySQL application for student profiles, faculty accounts, subject allocation, attendance, internal marks, examination eligibility, automated caution emails and semester-aware internship recommendations.
 
-## Features
-- Dashboard with student and record counts
-- Add student details
-- Mark daily attendance (Present/Absent)
-- Add subject marks
-- Report showing attendance percentage and average marks
-- Admin, faculty, and student roles with role-checked login and logout
-- Student self-registration assigned to a faculty account; Admin creates faculty accounts
-- Admin role with system-wide faculty, student, attendance, marks, and reporting access
-- Faculty-created student logins and role-specific pages
-- Attendance tracked by subject, with low-attendance alerts below 75%
-- Demo subjects and sample attendance for testing alerts
-- Persistent MySQL database for Docker Compose
-- Docker container support
-- GitHub Actions workflow to check Python syntax and build the Docker image
+## Stack
+- React 19 + Vite + Lucide icons
+- FastAPI + Uvicorn
+- MySQL 8.4
+- Docker + Docker Compose
+- GitHub Actions CI
 
-## Run in VS Code without Docker
-1. Install Python 3.10 or newer, VS Code, and MySQL 8.4.
-2. Create a MySQL database and user using the values you plan to place in `.env`.
-3. Create and activate a virtual environment: `py -m venv .venv` then `.venv\Scripts\Activate.ps1`.
-4. Install packages: `pip install -r requirements.txt`.
-5. Set `MYSQL_HOST=127.0.0.1`, `MYSQL_PORT=3306`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, and `SECRET_KEY` in `.env`.
-6. Start: `python app.py`.
-7. Open `http://127.0.0.1:5000` in your browser.
+## Run on Windows
+1. Install and start Docker Desktop.
+2. Extract this project and open its root folder in VS Code.
+3. Copy `.env.example` to `.env`.
+4. Set strong values for `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `SECRET_KEY`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD`.
+5. Run `docker compose up --build -d`.
+6. Open **http://localhost:8080**.
 
-EduTrack uses MySQL only. The first faculty account is provisioned by an Admin and receives the three demo subjects: Data Structures, Database Systems, and Operating Systems. Faculty can create student logins from the Students page, or students can use the Register page to create an account assigned to a faculty account. Students see their own subject attendance, alerts, and marks.
+The first start creates the MySQL schema and bootstraps the admin account using `ADMIN_USERNAME` and `ADMIN_PASSWORD`. Use those credentials with the **Admin** role. Do not commit `.env` to GitHub.
 
-## Run using Docker
-1. Install Docker Desktop and start it.
-2. Open the project folder in VS Code terminal.
-3. Create a local environment file and replace the example values with long random secrets:
-   ```powershell
-   Copy-Item .env.example .env
-   ```
-4. Run: `docker compose up --build -d`
-5. Open `http://127.0.0.1:5000` and log in as the provisioned Admin, then create faculty accounts. Students can register from the link below the login form.
-6. Stop with `docker compose down`. The named `mysql-data` volume keeps the MySQL database when the containers are stopped or recreated.
+### First-time setup inside the application
+1. Sign in using the admin credentials from `.env`.
+2. Open **Faculty** and create faculty accounts.
+3. Open **Subjects** and assign subjects to faculty.
+4. Open **Students** and create student profiles. Set each student's login username/password, email, semester and comma-separated skills. Admin must assign the responsible faculty member.
+5. Faculty can now sign in, select their students and subjects, and record attendance and internal marks.
+6. Admin can add internship opportunities. Semester 5/6 students see matching opportunities ranked by skill overlap.
 
-Compose runs MySQL 8.4 and waits for its health check before starting Flask. The app stores user accounts, subjects, attendance, and marks in MySQL. Passwords are stored as secure hashes. Choose the matching account role from the login dropdown; the selected role must match the role stored for that username. Faculty manage their own student records, students can view only their own attendance and marks, and admins can view/manage data across faculty accounts. The application connects directly to MySQL; no SQLite database or migration is used. The `.env` file is local-only and must not be committed. Set `COOKIE_SECURE=true` when serving the app over HTTPS.
+## Main application modules
+- Admin: faculty accounts, subject allocation, student records, internships and overview.
+- Faculty: assigned students, attendance entry, internal marks and caution checks.
+- Student: own profile, attendance, marks, eligibility, notifications and semester-matched internship opportunities.
+- Eligibility: overall recorded attendance compared with `ATTENDANCE_THRESHOLD` (default 75%).
+- Caution alerts: after attendance or marks are saved, the backend evaluates the student's record and creates an alert when configured thresholds are crossed. If SMTP is configured and the student has an email address, the alert is emailed automatically. A duplicate alert is suppressed for 24 hours. Configure SMTP below.
+- Internship recommendations: students in the configured semester range see opportunities ranked using a 70% skill-overlap score and a 30% internal-marks average when marks are available.
 
-To provision an administrator, set `ADMIN_USERNAME` and `ADMIN_PASSWORD` in `.env`; the app creates that account once during startup and never resets an existing admin password. The requested demo credentials are weak and should only be used locally; sign in and use **Change password** to set a unique, long password before exposing the app beyond your machine. Admins create faculty accounts from the Faculty page and assign subjects from the Subjects page. Public registration creates student accounts only and requires a faculty assignment.
+## SMTP email setup
+Set these values in `.env` to enable actual email delivery:
 
-To clear the database, run `docker compose down --volumes`; this permanently deletes all accounts and records stored in the MySQL volume.
-
-## Push to GitHub
-Create an empty GitHub repository named `smart-attendance-performance`. In the VS Code terminal run:
-```bash
-git init
-git add .
-git commit -m "Initial smart attendance project"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/smart-attendance-performance.git
-git push -u origin main
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-sender@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM=your-sender@gmail.com
 ```
-Replace `YOUR-USERNAME` with your GitHub username. On every push, GitHub Actions runs the workflow in `.github/workflows/ci.yml`. Open the repository's Actions tab to see the result.
 
-## Demo flow
-1. Sign in as Admin and create faculty accounts from the Faculty page.
-2. Assign subjects to faculty on the Subjects page.
-3. Faculty can add students and create their accounts; students can also self-register from the Register link by selecting their faculty.
-4. Sign in as a student to view personal attendance alerts and marks.
-5. Faculty or Admin can mark attendance by student, subject, date, and status; the student's warning updates automatically.
-6. Open Reports to review per-subject attendance and marks.
+For Gmail, use an App Password with 2-Step Verification, not your normal account password. Student email addresses must be entered when creating student profiles. If SMTP is not configured, the application still works but emails are not sent.
 
-## Important limitations
-This is a classroom/demo version. It does not include password recovery, email verification, biometric attendance, parent notifications, or cloud deployment. Do not enter real sensitive student data. Use a production WSGI server, HTTPS, and a securely managed signing key before any real institutional use.
+## Local development without Docker
+Backend (Python 3.12+):
+```bash
+python -m venv .venv
+# Windows: .venv\\Scripts\\activate
+pip install -r backend/requirements.txt
+uvicorn backend.main:api --reload --port 8000
+```
+Frontend (Node.js 22+):
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The Vite dev server proxies `/api` to `http://localhost:8000`.
+
+## Docker commands
+```bash
+docker compose up --build -d
+docker compose ps
+docker compose logs -f backend
+docker compose down
+```
+- React app: http://localhost:8080
+- FastAPI Swagger docs: http://localhost:8080/api/docs (or http://localhost:8000/api/docs)
+- API health: http://localhost:8080/api/health
+
+## GitHub Actions
+The workflow installs frontend dependencies, creates a production React build, compiles backend Python files, runs structural checks, and builds both Docker images. Deployment is not automatic until hosting credentials and deployment secrets are configured. See `DEPLOYMENT.md`.
+
+## Notes
+- The original Flask templates are retained in the repository as a migration reference, but the active browser interface is now the React SPA and its JSON API is served by FastAPI.
+- This package requires a real Docker build and end-to-end test on the target laptop before it can be considered production verified. Check logs with `docker compose logs -f` if startup fails.

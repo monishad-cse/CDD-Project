@@ -1,32 +1,57 @@
 services:
-  smart-attendance:
-    build: .
-    container_name: smart-attendance-demo
-    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: edutrack-frontend
     environment:
-      DB_TYPE: mysql
+      BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: edutrack-backend
+    environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: "3306"
       MYSQL_DATABASE: ${MYSQL_DATABASE:-smart_attendance}
       MYSQL_USER: ${MYSQL_USER:-attendance}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
-      LEGACY_SQLITE_PATH: /data/school.db
-      SECRET_KEY: ${SECRET_KEY:-local-development-only-change-this}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      ATTENDANCE_THRESHOLD: ${ATTENDANCE_THRESHOLD:-75}
+      LOW_MARKS_THRESHOLD: ${LOW_MARKS_THRESHOLD:-40}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
     ports:
-      - "5000:5000"
-    volumes:
-      - attendance-data:/data:ro
+      - "8000:8000"
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+    restart: unless-stopped
 
   mysql:
     image: mysql:8.4
-    container_name: smart-attendance-mysql
-    restart: unless-stopped
+    container_name: edutrack-mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-smart_attendance}
       MYSQL_USER: ${MYSQL_USER:-attendance}
@@ -40,7 +65,7 @@ services:
       timeout: 5s
       retries: 20
       start_period: 20s
+    restart: unless-stopped
 
 volumes:
-  attendance-data:
   mysql-data:
